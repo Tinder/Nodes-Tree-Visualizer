@@ -1,0 +1,156 @@
+//
+//  Copyright © 2024 Tinder (Match Group, LLC)
+//
+
+#if DEBUG
+
+import Combine
+import Foundation
+import Nodes
+import SocketIO
+
+public class DebugSocket<T: AnyObject> {
+
+    private var socket: SocketIOClient {
+        socketManager.defaultSocket
+    }
+
+    private let socketManager: SocketManager
+
+    private let debugInformation: AnyPublisher<DebugInformation, Never> = DebugInformation.publisher()
+    private var factories: [String: DebugInformation.Factory] = [:]
+
+    private var allNodes: [String: Node] = [:]
+
+    private var rootNodes: [Node] = [] {
+        didSet { emitTree() }
+    }
+
+    private let encoder: JSONEncoder = .init()
+
+    private var cancellables: Set<AnyCancellable> = .init()
+
+    public convenience init(
+        transform: @escaping @MainActor (T) throws -> SocketData?
+    ) {
+        self.init(url: "http://localhost:3000", transform: transform)!
+    }
+
+    public init?(
+        url: String,
+        transform: @escaping @MainActor (T) throws -> SocketData?
+    ) {
+        guard let url: URL = .init(string: url)
+        else { return nil }
+        socketManager = SocketManager(socketURL: url, config: [.compress, .log(false)])
+        handleSocketEvents(transform: transform)
+    }
+
+    public func connect() {
+        guard socket.status == .notConnected || socket.status == .disconnected
+        else { return }
+        socket.connect()
+        guard cancellables.isEmpty
+        else { return }
+        debugInformation.sink { [weak self] in
+            guard let self else { return }
+            process(debugInformation: $0)
+        }.store(in: &cancellables)
+    }
+
+    private func emitTree() {
+        do {
+            let data: Data = try encoder.encode(rootNodes)
+            let json: String = .init(decoding: data, as: UTF8.self)
+            socket
+                .emitWithAck("tree", json)
+                .timingOut(after: 1) { _ in }
+        } catch {}
+    }
+
+    private func handleSocketEvents(
+        transform: @escaping @MainActor (T) throws -> SocketData?
+    ) {
+        socket.on(clientEvent: .connect) { [weak self] _, _ in
+            guard let self else { return }
+            emitTree()
+            for id: String in factories.keys {
+                socket
+                    .emitWithAck("factory", id)
+                    .timingOut(after: 1) { _ in }
+            }
+        }
+        socket.on("image") { [weak self] data, ack in
+            guard let self,
+                  let id: String = data.first as? String,
+                  let factory: DebugInformation.Factory = factories[id]
+            else { return }
+            Task { @MainActor in
+                let data: SocketData?? = try await factory.make(withObjectOfType: T.self, transform: transform)
+                guard let data: SocketData? = data,
+                      let data: SocketData = data
+                else { return }
+                ack.with(data)
+            }
+        }
+    }
+
+    private func process(debugInformation: DebugInformation) {
+        switch debugInformation {
+        case let .flowWillStart(flowIdentifier, flowType, factory):
+            validate(factory: factory, for: Node(identifier: flowIdentifier, type: flowType))
+        case .flowDidEnd:
+            break
+        case let .flowWillAttachSubFlow(flowIdentifier, flowType, subFlowIdentifier, subFlowType):
+            let parent: Node = .init(identifier: flowIdentifier, type: flowType)
+            attach(Node(parent: parent, identifier: subFlowIdentifier, type: subFlowType))
+        case let .flowDidDetachSubFlow(_, _, subFlowIdentifier, subFlowType):
+            detach(Node(identifier: subFlowIdentifier, type: subFlowType))
+        case let .flowControllerWillAttachFlow(_, flowIdentifier, flowType):
+            attach(Node(identifier: flowIdentifier, type: flowType))
+        case let .flowControllerDidDetachFlow(_, flowIdentifier, flowType):
+            detach(Node(identifier: flowIdentifier, type: flowType))
+        }
+    }
+
+    private func validate(factory: DebugInformation.Factory, for node: Node) {
+        guard factory.canMake(withObjectOfType: T.self)
+        else { return }
+        factories[node.id] = factory
+        socket
+            .emitWithAck("factory", node.id)
+            .timingOut(after: 1) { _ in }
+    }
+
+    private func attach(_ child: Node) {
+        guard allNodes[child.id] == nil
+        else { return }
+        allNodes[child.id] = child
+        if let parent: Node = child.parent {
+            if let existingParent: Node = allNodes[parent.id] {
+                child.parent = existingParent
+            } else {
+                allNodes[parent.id] = parent
+            }
+        }
+        child.parent?.children.append(child)
+        updateRootNodes()
+    }
+
+    private func detach(_ child: Node) {
+        guard let child: Node = allNodes[child.id]
+        else { return }
+        allNodes[child.id] = nil
+        child.parent?.children.removeAll { $0 === child }
+        updateRootNodes()
+    }
+
+    private func updateRootNodes() {
+        rootNodes = allNodes
+            .values
+            .filter { $0.parent == nil }
+            .sorted { $0.name < $1.name }
+    }
+}
+
+#endif

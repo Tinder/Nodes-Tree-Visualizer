@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Nodes Tree Visualizer</title>
+    <style>
+
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: Sans-Serif;
+      }
+
+      ul, ol {
+        margin: 0;
+        padding: 0;
+        list-style: circle inside;
+      }
+
+      li {
+        margin: 0 0 0 10px;
+        padding: 0;
+        cursor: default;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      li > span {
+        display: inline-block;
+        padding: 3px 6px;
+        border-radius: 4px;
+      }
+
+      li > span.highlight {
+        transition: background-color 0.3s ease;
+        background-color: #ccc;
+        cursor: pointer;
+      }
+
+      #overlay {
+        box-sizing: border-box;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.75);
+        padding: 50px;
+        cursor: pointer;
+      }
+
+      #overlay.hidden {
+        display: none;
+      }
+
+      #overlay.shown {
+        display: flex;
+      }
+
+      #image {
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+
+      (() => {
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+          const socket = io();
+
+          let factories = [];
+
+          const html = {
+            overlay: document.getElementById('overlay'),
+            image: document.getElementById('image'),
+            tree: document.getElementById('tree')
+          };
+
+          showOverlay = () => {
+            html.overlay.classList.remove("hidden");
+            html.overlay.classList.add("shown");
+          };
+
+          hideOverlay = () => {
+            html.overlay.classList.remove("shown");
+            html.overlay.classList.add("hidden");
+          };
+
+          arrayBufferToBase64 = (arrayBuffer) => {
+            let binary = '';
+            const bytes = new Uint8Array(arrayBuffer);
+            for (let i = 0; i < bytes.byteLength; i++) {
+              binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+          };
+
+          showImage = (arrayBuffer) => {
+            html.image.src = 'data:image/png;base64,' + arrayBufferToBase64(arrayBuffer);
+            showOverlay();
+          };
+
+          hideImage = () => {
+            hideOverlay();
+            html.image.src = '';
+          };
+
+          getImage = (id) => {
+            socket.timeout(3000).emit('image', id, (err, val) => {
+              if (val instanceof ArrayBuffer) {
+                showImage(val);
+              }
+            });
+          };
+
+          treeToNestedList = (tree) => {
+            const ul = document.createElement('ul');
+            tree.forEach((item) => {
+              const li = document.createElement('li');
+              const span = document.createElement('span');
+              span.addEventListener('mouseover', (event) => {
+                event.stopPropagation();
+                if (factories.includes(item.id)) {
+                  span.classList.add("highlight");
+                }
+              });
+              span.addEventListener('mouseout', (event) => {
+                event.stopPropagation();
+                span.classList.remove("highlight");
+              });
+              span.addEventListener('click', (event) => {
+                event.stopPropagation();
+                getImage(item.id);
+              });
+              span.textContent = item.name;
+              li.appendChild(span);
+              if (item.children && item.children.length) {
+                li.appendChild(treeToNestedList(item.children));
+              }
+              ul.appendChild(li);
+            });
+            return ul;
+          };
+
+          html.overlay.addEventListener('click', (event) => {
+            event.stopPropagation();
+            hideImage();
+          });
+
+          hideOverlay();
+
+          socket.on('tree', (arg, callback) => {
+            html.tree.innerHTML = '';
+            html.tree.appendChild(treeToNestedList(arg));
+            callback();
+          });
+
+          socket.on('factory', (arg, callback) => {
+            if (!factories.includes(arg)) {
+              factories.push(arg);
+            }
+            callback();
+          });
+
+        });
+
+      })();
+
+    </script>
+  </head>
+  <body>
+    <div id="overlay"><img id="image"></div>
+    <div id="tree"></div>
+  </body>
+</html>

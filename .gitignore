@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# SPM
+.swiftpm/
+.build/
+
+# Xcode
+*.xcworkspace/
+*.xcodeproj/
+
+# Node.js
+node_modules/
