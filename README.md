@@ -1,6 +1,6 @@
 # Nodes Tree Visualizer
 
-A Swift library and companion web application for tree visualization of apps that use the [Nodes Architecture Framework](https://github.com/TinderApp/Nodes) for _Native Mobile Application Engineering at Scale_.
+A Swift library and companion web application for tree visualization of apps that use the [Nodes Architecture Framework](https://github.com/Tinder/Nodes) for _Native Mobile Application Engineering at Scale_
 
 ## Web Application
 
@@ -52,7 +52,7 @@ debugSocket.connect()
 #endif
 ```
 
-The following example demonstrates how to setup a Nodes [Quick Start](https://github.com/TinderApp/Nodes#quick-start) project for example:
+The following example demonstrates how to setup a Nodes [Quick Start](https://github.com/Tinder/Nodes#quick-start) project for example:
 
 ```swift
 

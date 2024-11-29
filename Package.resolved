@@ -21,7 +21,7 @@
     {
       "identity" : "nodes",
       "kind" : "remoteSourceControl",
-      "location" : "git@github.com:TinderApp/Nodes.git",
+      "location" : "git@github.com:Tinder/Nodes.git",
       "state" : {
         "revision" : "25e21ce6c17a59728956b97d945bd54612fc9c04",
         "version" : "0.0.30"
