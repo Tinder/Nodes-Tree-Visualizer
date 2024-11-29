@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "git@github.com:Tinder/Nodes.git",
-            from: "0.0.0"),
+            "0.0.0"..<"2.0.0"),
         .package(
             url: "https://github.com/socketio/socket.io-client-swift.git",
             from: "16.1.0"),
