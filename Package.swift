@@ -19,7 +19,7 @@ let package = Package(
             from: "0.0.0"),
         .package(
             url: "https://github.com/socketio/socket.io-client-swift.git",
-            from: "16.1.0"),
+            exact: "16.1.1"),
     ],
     targets: [
         .target(
