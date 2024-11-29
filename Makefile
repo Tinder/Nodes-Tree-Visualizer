@@ -4,4 +4,5 @@ open:
 
 .PHONY: serve
 serve:
+	@npm install --prefix server >/dev/null 2>&1
 	node server/index.js
