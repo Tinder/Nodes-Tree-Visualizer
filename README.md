@@ -13,7 +13,7 @@ brew install node
 ### Server
 
 ```
-git clone git@github.com:TinderApp/Nodes-Tree-Visualizer.git
+git clone git@github.com:Tinder/Nodes-Tree-Visualizer.git
 cd Nodes-Tree-Visualizer
 make serve
 ```
@@ -31,7 +31,7 @@ open http://localhost:3000
 > Replace `<version>` with the desired minimum version.
 
 ```swift
-.package(url: "https://github.com/TinderApp/Nodes-Tree-Visualizer.git", from: "<version>")
+.package(url: "https://github.com/Tinder/Nodes-Tree-Visualizer.git", from: "<version>")
 ```
 
 ### Connect
