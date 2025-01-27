@@ -1,6 +1,8 @@
 [![Swift](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/swift.yml/badge.svg?event=push)](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/swift.yml)
 &nbsp;
 [![DocC](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/docc.yml/badge.svg?event=push)](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/docc.yml)
+&nbsp;
+[![Artifactory](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/artifactory.yml/badge.svg?event=push)](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/artifactory.yml)
 
 # Nodes Tree Visualizer
 
