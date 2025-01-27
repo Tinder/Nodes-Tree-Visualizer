@@ -1,12 +1,12 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.8
 
 import PackageDescription
 
 let package = Package(
     name: "Nodes-Tree-Visualizer",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13)
+        .iOS(.v13),
+        .macOS(.v12),
     ],
     products: [
         .library(
@@ -20,6 +20,12 @@ let package = Package(
         .package(
             url: "https://github.com/socketio/socket.io-client-swift.git",
             exact: "16.1.1"),
+        .package(
+            url: "https://github.com/realm/SwiftLint.git",
+            exact: "0.56.2"),
+        .package(
+            url: "https://github.com/Quick/Nimble.git",
+            exact: "13.4.0"),
     ],
     targets: [
         .target(
@@ -28,5 +34,22 @@ let package = Package(
                 "Nodes",
                 .product(name: "SocketIO", package: "socket.io-client-swift"),
             ]),
+        .testTarget(
+            name: "NodesSocketIOTests",
+            dependencies: [
+                "NodesSocketIO",
+                "Nimble",
+            ]),
     ]
 )
+
+package.targets.forEach { target in
+
+    target.swiftSettings = [
+        .enableExperimentalFeature("StrictConcurrency"),
+    ]
+
+    target.plugins = [
+        .plugin(name: "SwiftLintBuildToolPlugin", package: "SwiftLint"),
+    ]
+}

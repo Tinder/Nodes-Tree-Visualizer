@@ -11,6 +11,7 @@ extension DebugSocket where T: UIViewController {
     public convenience init(
         jpegCompressionQuality compressionQuality: CGFloat = DebugSocketConstants.jpegCompressionDefaultQuality
     ) {
+        // swiftlint:disable:next force_unwrapping
         self.init(url: "http://localhost:3000", jpegCompressionQuality: compressionQuality)!
     }
 
