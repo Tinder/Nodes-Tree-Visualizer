@@ -209,3 +209,17 @@ Open in browser from the command line:
 ```
 open http://localhost:3000
 ```
+
+## Contributing
+
+While interest in contributing to this project is appreciated, it has been open 
+sourced solely for the purpose of sharing with the community. This means we are 
+unable to accept outside contributions at this time and pull requests will not 
+be reviewed or merged. To report a security concern or vulnerability, please 
+submit a GitHub issue.
+
+## License
+
+Licensed under the [Match Group Modified 3-Clause BSD License](
+https://github.com/Tinder/Nodes-Tree-Visualizer/blob/main/LICENSE
+).
