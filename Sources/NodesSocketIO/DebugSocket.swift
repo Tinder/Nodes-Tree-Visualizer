@@ -6,10 +6,10 @@
 
 import Combine
 import Foundation
-import Nodes
-import SocketIO
+@preconcurrency import Nodes
+@preconcurrency import SocketIO
 
-public class DebugSocket<T: AnyObject> {
+public class DebugSocket<T> where T: AnyObject, T: Sendable {
 
     private var socket: SocketIOClient {
         socketManager.defaultSocket
@@ -31,14 +31,15 @@ public class DebugSocket<T: AnyObject> {
     private var cancellables: Set<AnyCancellable> = .init()
 
     public convenience init(
-        transform: @escaping @MainActor (T) throws -> SocketData?
+        transform: @escaping @Sendable @MainActor (T) throws -> Data?
     ) {
+        // swiftlint:disable:next force_unwrapping
         self.init(url: "http://localhost:3000", transform: transform)!
     }
 
     public init?(
         url: String,
-        transform: @escaping @MainActor (T) throws -> SocketData?
+        transform: @escaping @Sendable @MainActor (T) throws -> Data?
     ) {
         guard let url: URL = .init(string: url)
         else { return nil }
@@ -52,10 +53,13 @@ public class DebugSocket<T: AnyObject> {
         socket.connect()
         guard cancellables.isEmpty
         else { return }
-        debugInformation.sink { [weak self] in
-            guard let self else { return }
-            process(debugInformation: $0)
-        }.store(in: &cancellables)
+        debugInformation
+            .sink { [weak self] debugInformation in
+                guard let self
+                else { return }
+                process(debugInformation: debugInformation)
+            }
+            .store(in: &cancellables)
     }
 
     private func emitTree() {
@@ -69,10 +73,11 @@ public class DebugSocket<T: AnyObject> {
     }
 
     private func handleSocketEvents(
-        transform: @escaping @MainActor (T) throws -> SocketData?
+        transform: @escaping @Sendable @MainActor (T) throws -> Data?
     ) {
         socket.on(clientEvent: .connect) { [weak self] _, _ in
-            guard let self else { return }
+            guard let self
+            else { return }
             emitTree()
             for id: String in factories.keys {
                 socket
@@ -86,11 +91,13 @@ public class DebugSocket<T: AnyObject> {
                   let factory: DebugInformation.Factory = factories[id]
             else { return }
             Task { @MainActor in
-                let data: SocketData?? = try await factory.make(withObjectOfType: T.self, transform: transform)
-                guard let data: SocketData? = data,
-                      let data: SocketData = data
-                else { return }
-                ack.with(data)
+                do {
+                    let data: Data?? = try await factory.make(withObjectOfType: T.self, transform: transform)
+                    guard let data: Data?,
+                          let data: Data
+                    else { return }
+                    ack.with(data)
+                } catch {}
             }
         }
     }

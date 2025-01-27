@@ -1,8 +1,17 @@
+[![Swift](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/swift.yml/badge.svg?event=push)](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/swift.yml)
+&nbsp;
+[![DocC](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/docc.yml/badge.svg?event=push)](https://github.com/Tinder/Nodes-Tree-Visualizer/actions/workflows/docc.yml)
+
 # Nodes Tree Visualizer
 
 A handy tree visualizer for apps using the [Nodes Architecture Framework](https://github.com/Tinder/Nodes)
 
 <img src="Nodes-Tree-Visualizer.png" width="407" />
+
+## Minimum Requirements
+
+- iOS `13.0`
+- Swift `5.8`
 
 ## Installation
 

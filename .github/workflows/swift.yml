@@ -1,0 +1,41 @@
+name: Swift
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+
+jobs:
+  swift:
+    name: Swift
+    runs-on: macos-latest
+    env:
+      SIMULATOR: iPhone 15
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+    - name: Download swiftlint binary
+      run: swift package resolve
+    - name: Lint
+      run: >
+        "$(find ".build/artifacts/swiftlint" -type f -name swiftlint -perm +111 -print -quit)"
+        lint --strict --reporter github-actions-logging
+    - name: Resolve package dependencies
+      run: xcodebuild -resolvePackageDependencies
+    - name: Build
+      run: >
+        xcodebuild
+        build-for-testing
+        -scheme "Nodes-Tree-Visualizer"
+        -destination "name=$SIMULATOR,OS=latest"
+        -skipPackagePluginValidation
+    - name: Test
+      run: >
+        xcodebuild
+        test-without-building
+        -scheme "Nodes-Tree-Visualizer"
+        -destination "name=$SIMULATOR,OS=latest"
