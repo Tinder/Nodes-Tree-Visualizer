@@ -1,8 +1,3 @@
-.PHONY: serve
-serve:
-	@npm install --prefix server >/dev/null 2>&1
-	node server/index.js
-
 .PHONY: open
 open: fix
 open:
@@ -44,6 +39,14 @@ analyze:
 	swift package plugin \
 		swiftlint analyze --strict --progress --reporter "$(format)" --compiler-log-path "$$XCODEBUILD_LOG"
 
+.PHONY: delete-snapshots
+delete-snapshots:
+	@for snapshots in $$(find Tests -type d -name "__Snapshots__"); \
+	do \
+		rm -rf "$$snapshots"; \
+		echo "Deleted $$snapshots"; \
+	done
+
 .PHONY: docs
 docs: target ?= Nodes-Tree-Visualizer
 docs: destination ?= generic/platform=iOS
@@ -63,3 +66,8 @@ docs:
 		-name "$(target).doccarchive" \
 		-exec cp -R {} "$(ARCHIVE_PATH)/" \;
 	$(if $(filter $(open),OPEN),@open "$(ARCHIVE_PATH)/$(target).doccarchive",)
+
+.PHONY: serve
+serve:
+	@npm install --prefix server >/dev/null 2>&1
+	node server/index.js
