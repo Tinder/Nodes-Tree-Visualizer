@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Tinder/Nodes.git",
       "state" : {
-        "revision" : "43fc53d52062fc49743505c2cf9a73778b051bb0",
-        "version" : "0.0.34"
+        "revision" : "73254bc2754633b186cc4af3c836b29440ff8625",
+        "version" : "0.0.42"
       }
     },
     {
