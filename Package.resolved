@@ -1,5 +1,5 @@
 {
-  "originHash" : "cca295a85151094afeec7d8350fd266fe258bd3a1450feaa54eedaedc2bbec9d",
+  "originHash" : "facaa86ff36cdb3cd199780433b8860493df26d4bfd2f6078987ba96c2a795b8",
   "pins" : [
     {
       "identity" : "codextended",
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Tinder/Nodes.git",
       "state" : {
-        "revision" : "c4bd6dd9f74f50437675c6ae4d879e9ab6d41808",
-        "version" : "0.0.43"
+        "revision" : "ced157cbc3df4e9cce9945aca100232eb4b4ce82",
+        "version" : "0.0.44"
       }
     },
     {
