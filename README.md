@@ -8,11 +8,6 @@ A handy tree visualizer for apps using the [Nodes Architecture Framework](https:
 
 <img src="Nodes-Tree-Visualizer.png" width="407" />
 
-## Minimum Requirements
-
-- iOS `13.0`
-- Swift `5.8`
-
 ## Installation
 
 ### Swift Package Collection
