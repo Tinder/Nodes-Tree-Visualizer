@@ -7,13 +7,16 @@
 //  See https://github.com/Tinder/Nodes-Tree-Visualizer/blob/main/LICENSE for license information.
 //
 
-import Nimble
 import NodesSocketIO
-import XCTest
+import Testing
 
-final class NodesSocketIOTests: XCTestCase {
+struct NodesSocketIOTests {
 
+    private final class Mock: Sendable {}
+
+    @Test
     func testDebugSocket() {
-        expect(DebugSocket()) != nil
+        let debugSocket: DebugSocket<Mock>? = .init { _ in nil }
+        #expect(debugSocket != nil)
     }
 }
